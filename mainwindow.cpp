@@ -43,6 +43,12 @@ void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
             //delete item
             // getItemUsingPosition
             QGraphicsItem *item = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
+            //debug
+            if (item == nullptr)
+            {
+                qDebug() << "is nullptr on mouse press event";
+                return;
+            }
             scene->removeItem(item);
             //vector.at[remove]
             qDebug() << "hrere"; //itemIsUnderMouse intercepts this
@@ -60,8 +66,13 @@ void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
     {
 //        itemsVec.push_back(new QGraphicsItem()); //create func that creat item in turn
         //createNewItem(mapToScene(mouseEvent->pos()));
-        createNewItem(mouseEvent->pos());
+        //debug
+        if (createNewItem(mouseEvent->pos()) == nullptr)
+        {
+            qDebug() << "is nullptr inside mousePress and creating new item";
+        }
         return;
+        //end debug
     }
 
     this->setCursor(QCursor(Qt::ClosedHandCursor));
@@ -72,6 +83,7 @@ void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
 {
+        qDebug() << "getting here";
     if (!itemIsUnderMouse)
     {
         //func() that creates new item (or mb move it to MainWindow::on_click ?)
@@ -84,6 +96,14 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
         this->setCursor(QCursor(Qt::ArrowCursor));
 
         QGraphicsItem *item = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
+//        assert (item != nullptr);
+        //debug
+        if (item == nullptr)
+        {
+            qDebug() << "is nullptr";
+            return;
+        }
+        //end debug
         item->setPos(mapToScene(mouseEvent->pos()));
         itemIsUnderMouse = false;
     }
@@ -105,6 +125,15 @@ void MainWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
     if (!itemIsUnderMouse)
         return;
     QGraphicsItem *item = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
+//    QGraphicsItem *item = scene->itemAt(mouseEvent->pos(), QTransform());
+    //debug
+    if (item == nullptr)
+    {
+        qDebug() << "is nullptr inside moveEvent";
+        return;
+    }
+    //end debug
+
     item->setPos(mapToScene(mouseEvent->pos()));
 }
 
