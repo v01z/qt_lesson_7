@@ -54,7 +54,10 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
     if (mouseEvent->button() != Qt::LeftButton)
         return;
     if (!itemIsUnderMouse)
+    {
+        //func() that creates new item (or mb move it to MainWindow::on_click ?)
         return;
+    }
 
     this->setCursor(QCursor(Qt::ArrowCursor));
 
@@ -63,16 +66,11 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
 
 }
 
-//for rotate
+//for rotate too
 void MainWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
 {
-    if (mouseEvent->button() != Qt::LeftButton)
+    if (!itemIsUnderMouse)
         return;
 
-    /*
-    qDebug() << "mouse pos: " << mouseEvent->pos() <<
-        " *** ellips pos: " << ellipseItem->pos();
-        */
-
-//    ellipseItem->setPos(mouseEvent->pos());
+    ellipseItem->setPos(mapToScene(mouseEvent->pos()));
 }
