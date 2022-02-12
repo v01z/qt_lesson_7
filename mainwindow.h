@@ -3,18 +3,26 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
+//#include <QGraphicsItem>
+//#include <QVector>
+//#include "blockscheme.h"
+#include <QGraphicsItem>
 
 class MainWindow : public QGraphicsView
 {
    Q_OBJECT
 
 public:
-   MainWindow(QWidget *parent = 0);
+   MainWindow(QWidget *parent = nullptr);
    ~MainWindow();
 private:
-   QGraphicsView *view;
-   QGraphicsScene *scence;
+//   QGraphicsView *view;
+   QGraphicsScene *scene;
+   QGraphicsEllipseItem *ellipseItem;
+
 protected:
+   void mousePressEvent(QMouseEvent *event) override;
+   void mouseReleaseEvent(QMouseEvent *event) override;
 private slots:
 };
 
