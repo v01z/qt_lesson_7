@@ -3,7 +3,7 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
-//#include <QVector>
+#include <QVector>
 #include <QGraphicsItem>
 #include <QMouseEvent>
 
@@ -19,6 +19,9 @@ private:
    QGraphicsScene *scene;
    QGraphicsEllipseItem *ellipseItem;
    bool itemIsUnderMouse;
+   QVector<QGraphicsItem*> itemsVec;
+   bool onEmptyPlaceClicked(QMouseEvent*) const;
+   const QGraphicsItem *createNewItem(const QPoint);
 
 protected:
    void mousePressEvent(QMouseEvent*) override;
