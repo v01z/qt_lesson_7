@@ -124,8 +124,9 @@ void MainWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
 {
     if (!itemIsUnderMouse)
         return;
-    QGraphicsItem *item = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
-//    QGraphicsItem *item = scene->itemAt(mouseEvent->pos(), QTransform());
+    //QGraphicsItem *item = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
+//    QGraphicsEllipseItem*item = (QGraphicsEllipseItem*)(scene->itemAt(mapToScene(mouseEvent->pos()), QTransform()));
+    QGraphicsItem *item = scene->itemAt(mouseEvent->pos(), QTransform());
     //debug
     if (item == nullptr)
     {
