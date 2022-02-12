@@ -3,10 +3,9 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
-//#include <QGraphicsItem>
 //#include <QVector>
-//#include "blockscheme.h"
 #include <QGraphicsItem>
+#include <QMouseEvent>
 
 class MainWindow : public QGraphicsView
 {
@@ -19,10 +18,13 @@ private:
 //   QGraphicsView *view;
    QGraphicsScene *scene;
    QGraphicsEllipseItem *ellipseItem;
+   bool itemIsUnderMouse;
 
 protected:
-   void mousePressEvent(QMouseEvent *event) override;
-   void mouseReleaseEvent(QMouseEvent *event) override;
+   void mousePressEvent(QMouseEvent*) override;
+   void mouseReleaseEvent(QMouseEvent*) override;
+   void mouseMoveEvent(QMouseEvent*) override;
+
 private slots:
 };
 

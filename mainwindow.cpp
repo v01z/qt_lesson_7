@@ -5,40 +5,24 @@
 
 
 MainWindow::MainWindow(QWidget*  parent )
-//MainWindow::MainWindow(QWidget* /* parent */)
    : QGraphicsView(parent),
-     scene { new QGraphicsScene(this) }
-     //ellipseItem { new QGraphicsEllipseItem(this) }
-//   : view ( new QGraphicsView(this))
+     scene { new QGraphicsScene(this) },
+     itemIsUnderMouse { false }
 {
 
-//    view->setMinimumSize(500, 600);
-//  scene = new QGraphicsScene(this);                      // Новая сцена
    this->setMinimumSize(500, 600);
- //  scence = new QGraphicsScene(view);                      // Новая сцена
 
    setScene(scene);
- //  scene->addRect(-300,0,300,300);                        // Добавляем
-
-                                                           // прямоугольник
-  // scene->addText("Текст через Graphics View Framework"); // Добавляем текст
-   //scence->addEllipse(-50, -50, 100, 100);
-   //scene->addEllipse(0, 0, 100, 100);
-
-   ///******
-   ///
 
    ellipseItem = new QGraphicsEllipseItem(0, 0, 70, 80);
    ellipseItem->setPen(QPen(QColor("red")));
-   //ellipseItem->brush().setColor(QColor(rand() % 256, rand() % 256, rand() % 256));
    QBrush brush;
    brush.setColor(QColor(rand() % 256, rand() % 256, rand() % 256));
    brush.setStyle(Qt::BrushStyle::SolidPattern); // Полностью закрашивать
    ellipseItem->setBrush(brush);
-   qDebug() << ellipseItem->brush();
 
-   qDebug () << ellipseItem->rect();
    scene->addItem(ellipseItem);
+
 
 }
 
@@ -48,12 +32,47 @@ MainWindow::~MainWindow()
         delete ellipseItem;
 }
 
-void MainWindow::mousePressEvent(QMouseEvent *event)
+void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
 {
-//   event
+
+    if (mouseEvent->button() != Qt::LeftButton)
+        return;
+    if (items(mouseEvent->pos()).size() < 1)
+        return;
+
+   qDebug() << "There are" << items(mouseEvent->pos()).size()
+             << "items at position" << mapToScene(mouseEvent->pos());
+
+    this->setCursor(QCursor(Qt::ClosedHandCursor));
+    itemIsUnderMouse = true;
+
+    qDebug() << "pressed";
 }
 
-void MainWindow::mouseReleaseEvent(QMouseEvent *event)
+void MainWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
 {
+    if (mouseEvent->button() != Qt::LeftButton)
+        return;
+    if (!itemIsUnderMouse)
+        return;
 
+    this->setCursor(QCursor(Qt::ArrowCursor));
+
+    ellipseItem->setPos(mapToScene(mouseEvent->pos()));
+    itemIsUnderMouse = false;
+
+}
+
+//for rotate
+void MainWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
+{
+    if (mouseEvent->button() != Qt::LeftButton)
+        return;
+
+    /*
+    qDebug() << "mouse pos: " << mouseEvent->pos() <<
+        " *** ellips pos: " << ellipseItem->pos();
+        */
+
+//    ellipseItem->setPos(mouseEvent->pos());
 }
