@@ -9,7 +9,8 @@ MainWindow::MainWindow(QWidget*  parent )
      scene { new QGraphicsScene(this) },
      willBeDragged { false },
      itemsVec {},
-     currentItem { nullptr }
+     currentItem { nullptr },
+     figureIndex {}
 {
 
    this->setMinimumSize(500, 600);
@@ -17,9 +18,12 @@ MainWindow::MainWindow(QWidget*  parent )
    setScene(scene);
 
 
+   /*
    QGraphicsEllipseItem *firstItem = (QGraphicsEllipseItem*)createNewItem(QPoint(0, 0));
 
    scene->addItem(firstItem);
+   */
+   scene->addItem(createNewItem(QPoint(0, 0)));
 
 
 }
@@ -163,25 +167,73 @@ bool MainWindow::onEmptyPlaceClicked(QMouseEvent *mouseEvent)
 QGraphicsItem *MainWindow::createNewItem(const QPointF point)
 {
 
-   QGraphicsEllipseItem *newItem = new QGraphicsEllipseItem(point.x(), point.y(),
-                                                            70, 80);
-   if (!newItem)
-       return nullptr;
 
-   QBrush brush;
-   brush.setColor(QColor(rand() % 256, rand() % 256, rand() % 256));
-   brush.setStyle(Qt::BrushStyle::SolidPattern); // Полностью закрашивать
+    QBrush brush;
+    brush.setColor(QColor(rand() % 256, rand() % 256, rand() % 256));
+    brush.setStyle(Qt::BrushStyle::SolidPattern); // Полностью закрашивать
+
+    QPen pen(QColor("red"));
 
 
-   newItem->setPen(QPen(QColor("red")));
-   newItem->setBrush(brush);
 
-   itemsVec.push_back(newItem);
-   qDebug() << "Added new element: " << newItem;
-   qDebug() << "Vec size is now: " << itemsVec.size();
-   scene->addItem(newItem);
+    QGraphicsItem *newItem;
+    switch (figureIndex)
+    {
+    case 0:
+    {
+        QGraphicsRectItem *rectItem = new QGraphicsRectItem(point.x(), point.y(),
+                                70, 80);
+        rectItem->setPen(pen);
+        rectItem->setBrush(brush);
+        newItem = rectItem;
+        break;
+    }
+    case 1:
+    {
+        QGraphicsEllipseItem *ellipseItem = new QGraphicsEllipseItem(point.x(), point.y(),
+                                70, 80);
+        ellipseItem->setPen(pen);
+        ellipseItem->setBrush(brush);
+        newItem = ellipseItem;
+        break;
+    }
+    case 2:
+    {
+        QPolygonF polygon;
+        //polygon  << QPointF( point.x(), point.y()) << QPointF( 0, 90 ) <<
+        polygon  << QPointF( 10, 10) << QPointF( 0, 90 ) <<
+                QPointF( 40, 70 ) << QPointF( 80,110 ) << QPointF( 70, 20 ) << QPointF(15,15);
+        QGraphicsPolygonItem *starItem = new QGraphicsPolygonItem (polygon);
+        starItem->setPen(pen);
+        starItem->setBrush(brush);
+        newItem = starItem;
+        break;
+    }
+    default:
+    {
+        qDebug() << "How did u managed get here?";
+        break;
+    }
+    }
 
-   return newItem;
+
+    /*
+    newItem->setPen(QPen(QColor("red")));
+    newItem->setBrush(brush);
+    */
+
+
+    itemsVec.push_back(newItem);
+    qDebug() << "Added new element: " << newItem;
+    qDebug() << "Vec size is now: " << itemsVec.size();
+    scene->addItem(newItem);
+
+    //  qDebug () << nextFigure;
+    figureIndex++;
+    if (figureIndex > 2)
+    figureIndex = 0;
+
+    return newItem;
 }
 
 void MainWindow::removeOneItem(QGraphicsItem *item)

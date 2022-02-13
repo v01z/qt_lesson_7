@@ -6,6 +6,8 @@
 #include <QVector>
 #include <QGraphicsItem>
 #include <QMouseEvent>
+#include <QArrayData>
+
 
 class MainWindow : public QGraphicsView
 {
@@ -22,6 +24,7 @@ private:
    QGraphicsItem *createNewItem(const QPointF);
    void removeOneItem(QGraphicsItem*);
    QGraphicsItem *currentItem;
+   size_t figureIndex;
 
 protected:
    void mousePressEvent(QMouseEvent*) override;
