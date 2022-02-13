@@ -7,7 +7,7 @@
 MainWindow::MainWindow(QWidget*  parent )
    : QGraphicsView(parent),
      scene { new QGraphicsScene(this) },
-     itemIsUnderMouse { false },
+     willBeDragged { false },
      itemsVec {},
      currentItem { nullptr }
 {
@@ -26,11 +26,39 @@ MainWindow::MainWindow(QWidget*  parent )
 
 MainWindow::~MainWindow()
 {
+    qDebug() << "Destructor of MainWindow called";
+    /*
     if (ellipseItem)
         delete ellipseItem;
+        */
 
+    qDebug () << "***********Deleting vector elements ***";
+    qDebug() << "Vec size is: " << itemsVec.size();
     for (auto &item : itemsVec)
-        delete item;
+    {
+
+        qDebug () << item;
+        itemsVec.removeOne(item);
+//        delete item;
+        qDebug() << "vec after deleting element is: " << itemsVec.size();
+        qDebug() << "vec count is: " << itemsVec.count();
+    }
+
+    //иногда вектор весь не очищается. вернёмся сюда позже
+    qDebug() << "Vec size after deleteng all is: " << itemsVec.size();
+//        delete item;
+
+    qDebug() << "scene has items: " << scene->items().count();
+    for (auto &item : scene->items())
+    {
+
+        qDebug() << "Removing from scene item: " << item;
+        scene->removeItem(item);
+    }
+    qDebug() << "scene has items now: " << scene->items().count();
+
+    if (scene)
+        delete scene;
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
@@ -41,43 +69,23 @@ void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
 
     if (mouseEvent->button() == Qt::RightButton)
     {
-        if (!onEmptyPlaceClicked(mouseEvent) && items(mouseEvent->pos()).size() > 0)
+//        if (!onEmptyPlaceClicked(mouseEvent) && items(mouseEvent->pos()).size() > 0)
+        if (!onEmptyPlaceClicked(mouseEvent))
         {
-            //delete item
-            // getItemUsingPosition
-            QGraphicsItem *item = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
-//            QGraphicsItem *item = scene->itemAt(mouseEvent->pos(), QTransform());
-            //debug
-            if (item == nullptr)
-            {
-                qDebug() << "is nullptr on mouse press event";
-                return;
-            }
-            qDebug() << item;
-            scene->removeItem(item);
-            //vector.at[remove]
-            qDebug() << "vec size before: " << itemsVec.size();
-            //itemsVec.erase(std::find_if(itemsVec.begin(), itemsVec.end(),[&item](QGraphicsItem *elem){
-            //capture all. потому вернуть строчку выше (полсе дебб)
-            itemsVec.erase(std::find_if(itemsVec.begin(), itemsVec.end(),[&](QGraphicsItem *elem){
+            //Если не на пустом месте, то currentItem должен содержать valid-значение
+            assert (currentItem != nullptr);
 
-               //return elem == item;
-                elem = item;
-                qDebug() << elem;
-                qDebug() << itemsVec.size();
-                return elem;
-            }));
+            qDebug() << currentItem;
 
-            qDebug() << "vec size after: " << itemsVec.size();
-            qDebug() << "hrere"; //itemIsUnderMouse intercepts this
-            delete item;
-
+            removeOneItem(currentItem);
+            currentItem = nullptr;
+            assert(currentItem == nullptr); //debug only
         }
 
         return;
     }
 
-    //-----------End of нажтии правой -------------------------------------------
+    //-----------End of нажaтии правой -------------------------------------------
 
     if (mouseEvent->button() != Qt::LeftButton)
         return;
@@ -87,16 +95,11 @@ void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
 
     if (onEmptyPlaceClicked(mouseEvent))
     {
-//        itemsVec.push_back(new QGraphicsItem()); //create func that creat item in turn
-        //createNewItem(mapToScene(mouseEvent->pos()));
-        //debug
-        //if (createNewItem(mouseEvent->pos()) == nullptr)
-        if ((currentItem = createNewItem(mapToScene(mouseEvent->pos()))) == nullptr)
-        {
-            qDebug() << "is nullptr inside mousePress and creating new item";
-        }
+        assert(currentItem == nullptr);
+
+        currentItem = createNewItem(mapToScene(mouseEvent->pos()));
+
         return;
-        //end debug
     }
 
     //-----------End of нажатие левой  ------------------------------------------
@@ -107,7 +110,7 @@ void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
     {
         this->setCursor(QCursor(Qt::ClosedHandCursor));
         currentItem = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
-        itemIsUnderMouse = true; //заменить на currentItem == or != nullptr
+        willBeDragged = true; //заменить на currentItem == or != nullptr
     }
 
     //-----------End of нажатие левой  ------------------------------------------
@@ -116,85 +119,49 @@ void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
 void MainWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
 {
 
-        qDebug() << "getting here";
-    if (!itemIsUnderMouse)
-    {
-        //func() that creates new item (or mb move it to MainWindow::on_click ?)
+    if (!willBeDragged)
         return;
-    }
 
     //----- При отпускании левой кнопки переносим итем на место курсора-------
-    //if (mouseEvent->button() == Qt::LeftButton)
-    if (mouseEvent->button() == Qt::LeftButton && currentItem != nullptr)
+    if (mouseEvent->button() == Qt::LeftButton)
     {
 
         this->setCursor(QCursor(Qt::ArrowCursor));
 
-        //QGraphicsItem *item = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
-//        QGraphicsEllipseItem *item = (QGraphicsEllipseItem*)scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
-//        assert (item != nullptr);
-        //debug
-        /*
-        if (item == nullptr)
-        {
-            qDebug() << "is nullptr inside realeased mouse button";
-            return;
-        }
-        */
-        //end debug
         currentItem->setPos(mapToScene(mouseEvent->pos()));
-        itemIsUnderMouse = false; ////заменить на currentItem == or != nullptr
+        willBeDragged = false; ////заменить на currentItem == or != nullptr
         currentItem = nullptr;
     }
-    /*
-    else
-        if (mouseEvent->button() == Qt::RightButton && items(mouseEvent->pos()).size() > 0)
-        {
-//         //
-        }
-        */
-    else
-            return;
 
+    else //Релизнута какая-то другая кнопка
+            return;
 
 }
 
 //for rotate too
 void MainWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
 {
-    if (currentItem == nullptr)
+    //if (currentItem == nullptr)
+    if (!willBeDragged)
         return;
+
+    assert(currentItem != nullptr);
 
     currentItem->setPos(mapToScene(mouseEvent->pos()));
-    /*
-    if (!itemIsUnderMouse)
-        return;
-    //QGraphicsItem *item = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
-    QGraphicsEllipseItem*item = (QGraphicsEllipseItem*)(scene->itemAt(mapToScene(mouseEvent->pos()), QTransform()));
-    //QGraphicsItem *item = scene->itemAt(mouseEvent->pos(), QTransform());
-    //QGraphicsEllipseItem*item = (QGraphicsEllipseItem*)scene->itemAt(mouseEvent->pos(), QTransform());
-    //debug
-    if (item == nullptr)
-    {
-        qDebug() << "is nullptr inside moveEvent";
-        return;
-    }
-    //end debug
-
-    item->setPos(mapToScene(mouseEvent->pos()));
-    */
 }
 
-bool MainWindow::onEmptyPlaceClicked(QMouseEvent *mouseEvent) const
+//Если false, то будет содержать currentItem, иначе currentItem будет nullptr
+bool MainWindow::onEmptyPlaceClicked(QMouseEvent *mouseEvent)
 {
-    if (items(mouseEvent->pos()).size() < 1)
+    //Получение currentItem есть побочный продукт данной функции
+    currentItem = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
+
+    if (currentItem == nullptr)
         return true;
 
     return false;
 }
 
-//const QGraphicsItem *MainWindow::createNewItem(const QPoint point)
-//const QGraphicsItem *MainWindow::createNewItem(const QPointF point)
 QGraphicsItem *MainWindow::createNewItem(const QPointF point)
 {
 
@@ -217,4 +184,27 @@ QGraphicsItem *MainWindow::createNewItem(const QPointF point)
    scene->addItem(newItem);
 
    return newItem;
+}
+
+void MainWindow::removeOneItem(QGraphicsItem *item)
+{
+    if (!item) //nullptr
+        return;
+
+    assert(itemsVec.size() == scene->items().count());
+
+    qDebug() << "+++++ Removing one element from vector +++++";
+    qDebug() << "Vector size before is: " << itemsVec.size();
+    itemsVec.removeOne(item);
+    qDebug() << "Vector size after is: " << itemsVec.size();
+    qDebug () << '\n';
+
+    qDebug() << "***** Removing one element from scene*****";
+    qDebug() << "Scene itmes count before is: " << scene->items().count();
+    scene->removeItem(item);
+    qDebug() << "Scene items count after isis: " << scene->items().count();
+    qDebug () << '\n';
+
+    delete item;
+    item = nullptr;
 }
