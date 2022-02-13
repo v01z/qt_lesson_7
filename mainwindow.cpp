@@ -96,8 +96,7 @@ void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
     if (onEmptyPlaceClicked(mouseEvent))
     {
         assert(currentItem == nullptr);
-
-        currentItem = createNewItem(mapToScene(mouseEvent->pos()));
+        assert(createNewItem(mapToScene(mouseEvent->pos())) != nullptr);
 
         return;
     }
@@ -110,7 +109,7 @@ void MainWindow::mousePressEvent(QMouseEvent *mouseEvent)
     {
         this->setCursor(QCursor(Qt::ClosedHandCursor));
         currentItem = scene->itemAt(mapToScene(mouseEvent->pos()), QTransform());
-        willBeDragged = true; //заменить на currentItem == or != nullptr
+        willBeDragged = true;
     }
 
     //-----------End of нажатие левой  ------------------------------------------
@@ -138,10 +137,9 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
 
 }
 
-//for rotate too
+//Will use this func for rotating items too
 void MainWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
 {
-    //if (currentItem == nullptr)
     if (!willBeDragged)
         return;
 
@@ -150,7 +148,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
     currentItem->setPos(mapToScene(mouseEvent->pos()));
 }
 
-//Если false, то будет содержать currentItem, иначе currentItem будет nullptr
+//Если false, то будет currentItem будет valid, иначе currentItem будет nullptr
 bool MainWindow::onEmptyPlaceClicked(QMouseEvent *mouseEvent)
 {
     //Получение currentItem есть побочный продукт данной функции
