@@ -258,5 +258,46 @@ void MainWindow::removeOneItem(QGraphicsItem *item)
     qDebug () << '\n';
 
     delete item;
-    item = nullptr;
+//    item = nullptr;
+}
+
+void MainWindow::wheelEvent(QWheelEvent *wheelEvent)
+{
+    QGraphicsItem *graphicsItem {
+        scene->itemAt(mapToScene(wheelEvent->pos()),
+            QTransform()) };
+
+    if (graphicsItem == nullptr)
+        return;
+
+    qreal measure { 0.5 };
+
+    if ((wheelEvent->delta()) > 0 )
+        graphicsItem->setScale(measure);
+
+    else
+        graphicsItem->setScale(1 / measure);
+
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
+{
+    QPointF cursorPosition =
+        mapToScene(mapFromGlobal(QCursor::pos()));
+
+    QGraphicsItem *graphicsItem {
+        scene->itemAt(cursorPosition,
+            QTransform()) };
+
+    if (graphicsItem == nullptr)
+        return;
+
+    qreal measure { 0.5 };
+
+    if (keyEvent->key() == Qt::Key_Minus)
+        graphicsItem->setScale(measure);
+
+    else if (keyEvent->key() == Qt::Key_Plus)
+        graphicsItem->setScale(1 / measure);
+
 }
