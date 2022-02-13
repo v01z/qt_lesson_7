@@ -25,10 +25,12 @@ MainWindow::~MainWindow()
 
     qDebug () << "***********Deleting vector elements ***";
     qDebug() << "Vec size is: " << itemsVec.size();
+
     for (auto &item : itemsVec)
     {
 
         qDebug () << item;
+
         itemsVec.removeOne(item);
 
         qDebug() << "Vec after deleting element is: " << itemsVec.size();
@@ -37,11 +39,13 @@ MainWindow::~MainWindow()
 
     //иногда вектор весь не очищается. вернёмся сюда позже
     qDebug() << "Vec size after deleting all elements is: " << itemsVec.size();
+
     for (const auto &elem : itemsVec)
         qDebug () << elem;
 
     qDebug () << "***********Deleting scene's elements ***";
     qDebug() << "Scene has items: " << scene->items().count();
+
     for (auto &item : scene->items())
     {
 
@@ -50,8 +54,10 @@ MainWindow::~MainWindow()
 
         delete item;
     }
+
     qDebug() << "Scene has items now: " << scene->items().count();
 
+    //Лишний код
     if (scene)
         delete scene;
 }
@@ -123,7 +129,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
         this->setCursor(QCursor(Qt::ArrowCursor));
 
         currentItem->setPos(mapToScene(mouseEvent->pos()));
-        willBeDragged = false; ////заменить на currentItem == or != nullptr
+        willBeDragged = false;
         currentItem = nullptr;
     }
 
@@ -157,17 +163,14 @@ bool MainWindow::onEmptyPlaceClicked(QMouseEvent *mouseEvent)
 
 QGraphicsItem *MainWindow::createNewItem(const QPointF point)
 {
-
-
     QBrush brush;
     brush.setColor(QColor(rand() % 256, rand() % 256, rand() % 256));
     brush.setStyle(Qt::BrushStyle::SolidPattern);
 
     QPen pen(QColor("red"));
 
-
-
     QGraphicsItem *newItem;
+
     switch (figureIndex)
     {
     case 0:
@@ -188,11 +191,11 @@ QGraphicsItem *MainWindow::createNewItem(const QPointF point)
         newItem = ellipseItem;
         break;
     }
-    case 2:
+    case 2: //Пятиконечная звезда
     {
         qreal X = point.x();
         qreal Y = point.y();
-        qreal sz = 50;
+        qreal sz = 50; //размер звезды
 
         QPointF p1{ X, Y - sz };
         QPointF p2 { X + sz * qSin(M_PI/5), Y + sz * qCos(M_PI/5) };
@@ -225,15 +228,17 @@ QGraphicsItem *MainWindow::createNewItem(const QPointF point)
     }
     }
 
-
     itemsVec.push_back(newItem);
+
     qDebug() << "Added new element: " << newItem;
     qDebug() << "Vec size is now: " << itemsVec.size();
+
     scene->addItem(newItem);
 
     figureIndex++;
+
     if (figureIndex > 2)
-    figureIndex = 0;
+     figureIndex = 0;
 
     return newItem;
 }
@@ -247,18 +252,21 @@ void MainWindow::removeOneItem(QGraphicsItem *item)
 
     qDebug() << "+++++ Removing one element from vector +++++";
     qDebug() << "Vector size before is: " << itemsVec.size();
+
     itemsVec.removeOne(item);
+
     qDebug() << "Vector size after is: " << itemsVec.size();
     qDebug () << '\n';
 
     qDebug() << "***** Removing one element from scene*****";
     qDebug() << "Scene itmes count before is: " << scene->items().count();
+
     scene->removeItem(item);
+
     qDebug() << "Scene items count after isis: " << scene->items().count();
     qDebug () << '\n';
 
     delete item;
-//    item = nullptr;
 }
 
 void MainWindow::wheelEvent(QWheelEvent *wheelEvent)
@@ -277,7 +285,6 @@ void MainWindow::wheelEvent(QWheelEvent *wheelEvent)
 
     else
         graphicsItem->setScale(1 / measure);
-
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
@@ -299,5 +306,4 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
 
     else if (keyEvent->key() == Qt::Key_Plus)
         graphicsItem->setScale(1 / measure);
-
 }
