@@ -21,7 +21,10 @@ private:
    bool itemIsUnderMouse;
    QVector<QGraphicsItem*> itemsVec;
    bool onEmptyPlaceClicked(QMouseEvent*) const;
-   const QGraphicsItem *createNewItem(const QPoint);
+   //const QGraphicsItem *createNewItem(const QPoint);
+   //const QGraphicsItem *createNewItem(const QPointF);
+   QGraphicsItem *createNewItem(const QPointF);
+   QGraphicsItem *currentItem;
 
 protected:
    void mousePressEvent(QMouseEvent*) override;
