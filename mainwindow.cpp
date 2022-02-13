@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include <QMessageBox>
 #include <QDebug>
-
+#include <QtMath>
 
 
 MainWindow::MainWindow(QWidget*  parent )
@@ -17,24 +17,11 @@ MainWindow::MainWindow(QWidget*  parent )
 
    setScene(scene);
 
-
-   /*
-   QGraphicsEllipseItem *firstItem = (QGraphicsEllipseItem*)createNewItem(QPoint(0, 0));
-
-   scene->addItem(firstItem);
-   */
    scene->addItem(createNewItem(QPoint(0, 0)));
-
-
 }
 
 MainWindow::~MainWindow()
 {
-    qDebug() << "Destructor of MainWindow called";
-    /*
-    if (ellipseItem)
-        delete ellipseItem;
-        */
 
     qDebug () << "***********Deleting vector elements ***";
     qDebug() << "Vec size is: " << itemsVec.size();
@@ -43,23 +30,27 @@ MainWindow::~MainWindow()
 
         qDebug () << item;
         itemsVec.removeOne(item);
-//        delete item;
-        qDebug() << "vec after deleting element is: " << itemsVec.size();
-        qDebug() << "vec count is: " << itemsVec.count();
+
+        qDebug() << "Vec after deleting element is: " << itemsVec.size();
+        qDebug() << "Vec's count is: " << itemsVec.count();
     }
 
     //иногда вектор весь не очищается. вернёмся сюда позже
-    qDebug() << "Vec size after deleteng all is: " << itemsVec.size();
-//        delete item;
+    qDebug() << "Vec size after deleting all elements is: " << itemsVec.size();
+    for (const auto &elem : itemsVec)
+        qDebug () << elem;
 
-    qDebug() << "scene has items: " << scene->items().count();
+    qDebug () << "***********Deleting scene's elements ***";
+    qDebug() << "Scene has items: " << scene->items().count();
     for (auto &item : scene->items())
     {
 
         qDebug() << "Removing from scene item: " << item;
         scene->removeItem(item);
+
+        delete item;
     }
-    qDebug() << "scene has items now: " << scene->items().count();
+    qDebug() << "Scene has items now: " << scene->items().count();
 
     if (scene)
         delete scene;
@@ -141,7 +132,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *mouseEvent)
 
 }
 
-//Will use this func for rotating items too
+//I will use this func to rotate items, если будет свободное время
 void MainWindow::mouseMoveEvent(QMouseEvent *mouseEvent)
 {
     if (!willBeDragged)
@@ -170,7 +161,7 @@ QGraphicsItem *MainWindow::createNewItem(const QPointF point)
 
     QBrush brush;
     brush.setColor(QColor(rand() % 256, rand() % 256, rand() % 256));
-    brush.setStyle(Qt::BrushStyle::SolidPattern); // Полностью закрашивать
+    brush.setStyle(Qt::BrushStyle::SolidPattern);
 
     QPen pen(QColor("red"));
 
@@ -199,10 +190,28 @@ QGraphicsItem *MainWindow::createNewItem(const QPointF point)
     }
     case 2:
     {
+        qreal X = point.x();
+        qreal Y = point.y();
+        qreal sz = 50;
+
+        QPointF p1{ X, Y - sz };
+        QPointF p2 { X + sz * qSin(M_PI/5), Y + sz * qCos(M_PI/5) };
+
+        QPointF p3 { X + sz * qSin(M_PI/5), Y + sz * qCos(M_PI/5) };
+        QPointF p4 { X - sz * qCos(M_PI/10), Y - sz * qSin(M_PI/10) };
+
+        QPointF p5 { X - sz * qCos(M_PI/10), Y - sz * qSin(M_PI/10) };
+        QPointF p6 { X + sz * qCos(M_PI/10), Y - sz * qSin(M_PI/10) };
+
+        QPointF p7 { X+ sz * qCos(M_PI/10), Y - sz * qSin(M_PI/10) };
+        QPointF p8 { X - sz * qSin(M_PI/5), Y + sz * qCos(M_PI/5) };
+
+        QPointF p9 { X - sz * qSin(M_PI/5), Y + sz * qCos(M_PI/5) };
+        QPointF p10 { X, Y - sz };
+
         QPolygonF polygon;
-        //polygon  << QPointF( point.x(), point.y()) << QPointF( 0, 90 ) <<
-        polygon  << QPointF( 10, 10) << QPointF( 0, 90 ) <<
-                QPointF( 40, 70 ) << QPointF( 80,110 ) << QPointF( 70, 20 ) << QPointF(15,15);
+        polygon << p1 << p2 << p3 << p4 << p5 << p6 << p7 << p8 << p9 << p10;
+
         QGraphicsPolygonItem *starItem = new QGraphicsPolygonItem (polygon);
         starItem->setPen(pen);
         starItem->setBrush(brush);
@@ -217,18 +226,11 @@ QGraphicsItem *MainWindow::createNewItem(const QPointF point)
     }
 
 
-    /*
-    newItem->setPen(QPen(QColor("red")));
-    newItem->setBrush(brush);
-    */
-
-
     itemsVec.push_back(newItem);
     qDebug() << "Added new element: " << newItem;
     qDebug() << "Vec size is now: " << itemsVec.size();
     scene->addItem(newItem);
 
-    //  qDebug () << nextFigure;
     figureIndex++;
     if (figureIndex > 2)
     figureIndex = 0;

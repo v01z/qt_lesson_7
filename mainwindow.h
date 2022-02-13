@@ -6,7 +6,6 @@
 #include <QVector>
 #include <QGraphicsItem>
 #include <QMouseEvent>
-#include <QArrayData>
 
 
 class MainWindow : public QGraphicsView
